@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const LoginSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    websiteUrl: { type: String, required: true },
-    timestamp: { type: Date, default: Date.now }
+  username: { type: String, required: true },
+  website: { type: String, required: true },
+  loginTime: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('Login', LoginSchema);
+module.exports = mongoose.model("Login", LoginSchema);

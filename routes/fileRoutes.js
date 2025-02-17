@@ -1,13 +1,8 @@
-const express = require('express');
-const { uploadFile, getFiles, deleteFile } = require('../controllers/fileController');
-const authMiddleware = require('../middleware/authMiddleware');
-const multer = require('multer');
-
+const express = require("express");
+const { uploadFile } = require("../controllers/fileController");
+const authMiddleware = require("../middleware/authMiddleware");
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
 
-router.post('/upload', authMiddleware, upload.single('file'), uploadFile);
-router.get('/files', authMiddleware, getFiles);
-router.delete('/files/:id', authMiddleware, deleteFile);
+router.post("/upload", authMiddleware, uploadFile);
 
 module.exports = router;

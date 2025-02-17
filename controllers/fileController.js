@@ -1,57 +1,23 @@
-const multer = require('multer');
-const path = require('path');
-const mongoose = require('mongoose');
+const multer = require("multer");
+const File = require("../models/File");
 
 const storage = multer.diskStorage({
-    destination: './uploads',
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`);
-    }
+    destination: (req, file, cb) => cb(null, "uploads/"),
+    filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname),
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage }).single("file");
 
-const FileSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    filename: { type: String, required: true },
-    filepath: { type: String, required: true },
-    uploadedAt: { type: Date, default: Date.now }
-});
+exports.uploadFile = (req, res) => {
+    upload(req, res, async (err) => {
+        if (err) return res.status(500).json({ message: "File Upload Failed" });
 
-const File = mongoose.model('File', FileSchema);
-
-exports.uploadFile = async (req, res) => {
-    try {
-        const file = new File({
-            userId: req.user.id,
+        const newFile = new File({
+            user: req.user.id,
             filename: req.file.filename,
-            filepath: `/uploads/${req.file.filename}`
+            filepath: req.file.path,
         });
-
-        await file.save();
-        res.status(201).json({ msg: 'File uploaded successfully', file });
-    } catch (err) {
-        res.status(500).json({ msg: 'Server Error' });
-    }
-};
-
-exports.getFiles = async (req, res) => {
-    try {
-        const files = await File.find({ userId: req.user.id });
-        res.json(files);
-    } catch (err) {
-        res.status(500).json({ msg: 'Server Error' });
-    }
-};
-
-exports.deleteFile = async (req, res) => {
-    try {
-        const file = await File.findById(req.params.id);
-        if (!file) return res.status(404).json({ msg: 'File not found' });
-
-        await File.findByIdAndDelete(req.params.id);
-        res.json({ msg: 'File deleted successfully' });
-    } catch (err) {
-        res.status(500).json({ msg: 'Server Error' });
-    }
+        await newFile.save();
+        res.json({ message: "File Uploaded Successfully", file: newFile });
+    });
 };
